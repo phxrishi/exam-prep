@@ -1,3 +1,4 @@
+
 import express from "express";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
@@ -20,7 +21,8 @@ router.post("/register", async (req, res) => {
 
     await user.save();
 
-    res.json({ message: "User Registered ✅" });
+    res.json({ message: "User Registered" });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -34,23 +36,30 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "User not found ❌" });
+      return res.status(400).json({
+        message: "User not found"
+      });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password ❌" });
+      return res.status(400).json({
+        message: "Invalid password"
+      });
     }
 
     const token = jwt.sign(
       { userId: user._id, role: user.role },
-      "secretkey123",
+      process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
     res.json({
-      message: "Login successful ✅",
+      message: "Login successful",
       token,
       role: user.role
     });
